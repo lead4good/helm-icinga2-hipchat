@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{template "fullname" .}}-setup
+  labels:
+    app: {{template "fullname" .}}
+data:
+{{ (.Files.Glob "files/setup/*").AsConfig | indent 2 }}

@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.internalPort }}
+        env:
+        - name: ICINGAWEB2_ADMIN_USER
+          value: {{ .Values.admin.user }}
+        - name: ICINGAWEB2_ADMIN_PASS
+          value: {{ .Values.admin.password }}
+        {{- if .Values.admin.setup }}
+        - name: SETUP_ICINGA
+          value: "true"
+        {{- end }}
+        volumeMounts:
+        - mountPath: /opt/setup/json
+          name: icinga2setup
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+      - name: icinga2setup
+        configMap:
+          name: {{template "fullname" .}}-setup
