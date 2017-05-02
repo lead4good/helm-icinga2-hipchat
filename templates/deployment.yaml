@@ -15,6 +15,7 @@ spec:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: [ /bin/bash, -c , "ln -snf /usr/share/zoneinfo/Europe/Berlin /etc/localtime && echo Europe/Berlin > /etc/timezone && /opt/run"]
         ports:
         - containerPort: {{ .Values.service.internalPort }}
         env:
