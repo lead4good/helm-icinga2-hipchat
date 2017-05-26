@@ -1,0 +1,46 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "fullname" . }}
+  annotations:
+    {{- if .Values.ingress.ssl }}
+    kubernetes.io/tls-acme: "true"
+    {{- end }}
+    ingress.kubernetes.io/proxy-body-size: "50m"
+    kubernetes.io/ingress.class: nginx
+    {{- if .Values.ingress.htpasswd_string }}
+    ingress.kubernetes.io/auth-type: basic
+    ingress.kubernetes.io/auth-secret: {{ template "fullname" . }}
+    ingress.kubernetes.io/auth-realm: "Authenticate"
+    {{- end }}
+    {{- if .Values.ingress.www_subdomain }}
+    ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(.*)$ $scheme://www.{{ .Values.ingress.domain }}$1;
+    {{- end }}
+
+spec:
+  {{- if .Values.ingress.ssl }}
+  tls:
+  - secretName: {{ template "fullname" . }}-tls
+    hosts:
+    - {{ .Values.ingress.domain }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.ingress.domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ template "fullname" . }}
+          servicePort: {{ .Values.service.externalPort }}
+  {{- if .Values.ingress.www_subdomain }}
+  - host: www.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ template "fullname" . }}
+          servicePort: {{ .Values.service.externalPort }}
+  {{- end }}
+{{- end -}}

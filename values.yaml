@@ -15,3 +15,7 @@ resources:
   requests:
     cpu: 1m
     memory: 1Mi
+ingress:
+  enabled: true
+  ssl: true
+  domain: example.com
