@@ -16,14 +16,7 @@ http_timeout=$(jq -r '.http_timeout' < values.json)
 hostcmd="{\"check_command\":\"http\",\"object_name\":\"http-host\",\"object_type\":\"template\",\"vars\":{\"http_timeout\":\"$http_timeout\",\"http_warn_time\":\"$http_warn_time\",\"http_vhost\":\"www.\$check_address\$\",\"http_onredirect\":\"follow\"}}"
 eval "icingacli director host create --json '$hostcmd'"
 while IFS= read -r value; do
-  # no tls
-  #if [ -z $(curl -I $(sed -e 's/^"//' -e 's/"$//' <<<$value) | grep https) ]; then
-    json="{\"address\":$value,\"imports\":[\"http-host\"],\"object_name\":$value,\"object_type\":\"object\",\"vars\":{\"http_timeout\":\"$http_timeout\",\"http_warn_time\":\"$http_warn_time\",\"http_vhost\":\"www.\$check_address\$\",\"http_onredirect\":\"follow\",\"http_sni\":\"true\"}}"
-  # tls
-  #else
-  #  json="{\"address\":$value,\"imports\":[\"http-host\"],\"object_name\":$value,\"object_type\":\"object\",\"vars\":{\"http_ssl\":\"true\",\"http_ssl_force_tlsv1_or_higher\":\"true\",\"http_timeout\":\"$http_timeout\",\"http_warn_time\":\"$http_warn_time\",\"http_vhost\":\"www.\$check_address\$\",\"http_onredirect\":\"follow\"}}"
-  #fi
-  
+  json="{\"address\":$value,\"imports\":[\"http-host\"],\"object_name\":$value,\"object_type\":\"object\",\"vars\":{\"http_timeout\":\"$http_timeout\",\"http_warn_time\":\"$http_warn_time\",\"http_vhost\":\"www.\$check_address\$\",\"http_onredirect\":\"follow\",\"http_sni\":\"true\"}}"
   cmd="icingacli director host create --json '$json'"
   echo $cmd
   eval $cmd
